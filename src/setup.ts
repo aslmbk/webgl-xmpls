@@ -37,7 +37,7 @@ const perspectiveCamera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
   0.1,
-  100,
+  10000,
 );
 perspectiveCamera.position.set(0, 0, 3);
 const controls = new OrbitControls(perspectiveCamera, canvas);
@@ -75,16 +75,9 @@ window.addEventListener("resize", () => {
   sizes.height = window.innerHeight;
   const aspectRatio = sizes.width / sizes.height;
 
-  // Update perspective camera
   perspectiveCamera.aspect = aspectRatio;
   perspectiveCamera.updateProjectionMatrix();
 
-  // Update orthographic camera
-  // const frustumSize = 1;
-  // orthographicCamera.left = (-frustumSize * aspectRatio) / 2;
-  // orthographicCamera.right = (frustumSize * aspectRatio) / 2;
-  // orthographicCamera.top = frustumSize / 2;
-  // orthographicCamera.bottom = -frustumSize / 2;
   orthographicCamera.updateProjectionMatrix();
 
   renderer.setSize(sizes.width, sizes.height);
