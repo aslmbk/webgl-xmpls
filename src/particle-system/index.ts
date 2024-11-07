@@ -1,13 +1,5 @@
 import * as THREE from "three";
-import {
-  renderer,
-  resizeSubscribers,
-  scene,
-  tickSubscribers,
-  setCamera,
-  perspectiveCamera,
-  rgbeLoader,
-} from "../setup";
+import { renderer, scene, tickSubscribers, setCamera, perspectiveCamera, rgbeLoader } from "../setup";
 import { ParticleProject } from "./particles";
 
 export const initParticles = () => {
@@ -29,8 +21,6 @@ export const initParticles = () => {
   });
 
   const particleProject = new ParticleProject();
-
-  resizeSubscribers.push(() => {});
 
   tickSubscribers.push((elapsedTime, deltaTime) => {
     particleProject.step(elapsedTime, deltaTime);
