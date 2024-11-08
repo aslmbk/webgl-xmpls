@@ -56,7 +56,7 @@ float noise(vec3 p) {
 }
 
 vec3 terrainHeight(vec3 worldPos) {
-    return vec3(worldPos.x, noise(worldPos * 0.1) * 4.0, worldPos.z);
+    return vec3(worldPos.x, noise(worldPos * 0.1) * 2.0, worldPos.z);
 }
 
 void main() {

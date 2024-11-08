@@ -16,18 +16,26 @@ import vertexShaderSky from "./shaders/grass/sky-vertex.glsl";
 import fragmnetShaderSky from "./shaders/grass/sky-fragment.glsl";
 import vertexShaderGrass from "./shaders/grass/grass-vertex.glsl";
 import fragmnetShaderGrass from "./shaders/grass/grass-fragment.glsl";
+import { ParticleProject } from "./particle-system-fire/main";
 
 export const initGrass = () => {
   setCamera("perspective");
-  perspectiveCamera.position.set(10, 5, 5);
+  perspectiveCamera.position.set(5, 10, 30);
   perspectiveCamera.fov = 60;
 
-  const NUM_GRASS = 1024 * 80;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  scene.backgroundBlurriness = 0.0;
+  scene.backgroundIntensity = 0.025;
+  scene.environmentIntensity = 0.025;
+
+  const NUM_GRASS = 1024 * 60;
   const GRASS_SEGMENTS = 8;
   const GRASS_VERTICES = (GRASS_SEGMENTS + 1) * 2;
   const GRASS_PATCH_SIZE = 20;
-  const GRASS_WIDTH = 0.25;
-  const GRASS_HEIGHT = 2;
+  const GRASS_WIDTH = 0.1;
+  const GRASS_HEIGHT = 1.5;
 
   const diffuseTexture = textureLoader.load("/textures/grid.png");
   diffuseTexture.wrapS = THREE.RepeatWrapping;
@@ -58,10 +66,7 @@ export const initGrass = () => {
   const skyMaterial = new THREE.ShaderMaterial({
     uniforms: {
       uResolution: new THREE.Uniform(
-        new THREE.Vector2(
-          sizes.width * renderer.getPixelRatio(),
-          sizes.height * renderer.getPixelRatio(),
-        ),
+        new THREE.Vector2(sizes.width * renderer.getPixelRatio(), sizes.height * renderer.getPixelRatio()),
       ),
     },
     vertexShader: vertexShaderSky,
@@ -97,30 +102,17 @@ export const initGrass = () => {
     const geometry = new THREE.InstancedBufferGeometry();
     geometry.instanceCount = NUM_GRASS;
     geometry.setIndex(indices);
-    geometry.boundingSphere = new THREE.Sphere(
-      new THREE.Vector3(0, 0, 0),
-      1 + GRASS_PATCH_SIZE * 2,
-    );
+    geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1 + GRASS_PATCH_SIZE * 2);
 
     return geometry;
   };
 
   const grassMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      uGrassParams: new THREE.Uniform(
-        new THREE.Vector4(
-          GRASS_SEGMENTS,
-          GRASS_PATCH_SIZE,
-          GRASS_WIDTH,
-          GRASS_HEIGHT,
-        ),
-      ),
+      uGrassParams: new THREE.Uniform(new THREE.Vector4(GRASS_SEGMENTS, GRASS_PATCH_SIZE, GRASS_WIDTH, GRASS_HEIGHT)),
       uTime: new THREE.Uniform(0),
       uResolution: new THREE.Uniform(
-        new THREE.Vector2(
-          sizes.width * renderer.getPixelRatio(),
-          sizes.height * renderer.getPixelRatio(),
-        ),
+        new THREE.Vector2(sizes.width * renderer.getPixelRatio(), sizes.height * renderer.getPixelRatio()),
       ),
       uTileDataTexture: new THREE.Uniform(tileDataTexture),
       uGrassAtlas: new THREE.Uniform(null),
@@ -145,8 +137,12 @@ export const initGrass = () => {
     grassMaterial.uniforms.uResolution.value.set(width, height);
   });
 
-  tickSubscribers.push((elapsedTime) => {
+  const app = new ParticleProject();
+  app.onSetupProject();
+
+  tickSubscribers.push((elapsedTime, deltaTime) => {
     grassMaterial.uniforms.uTime.value = elapsedTime;
+    app.onStep(deltaTime, elapsedTime);
   });
   console.log("grass");
 };

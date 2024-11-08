@@ -23,4 +23,4 @@ const initApp = (type: AppType) => {
   }
 };
 
-initApp("fire");
+initApp("grass");

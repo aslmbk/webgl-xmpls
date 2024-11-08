@@ -1,9 +1,9 @@
 uniform vec2 uResolution;
 
-vec3 COLOR_LIGHT_BLUE = vec3(0.42, 0.65, 0.85);
-vec3 COLOR_BRIGHT_BLUE = vec3(0.01, 0.2, 1.0);
-vec3 COLOR_LIGHT_RED = vec3(0.85, 0.28, 0.28);
-vec3 COLOR_DARK_YELLOW = vec3(0.25, 0.25, 0.0625);
+vec3 COLOR_LIGHT_BLUE = vec3(0.13, 0.21, 0.27) * 0.02;
+vec3 COLOR_BRIGHT_BLUE = vec3(0.0, 0.03, 0.2) * 0.05;
+vec3 COLOR_LIGHT_RED = vec3(0.85, 0.28, 0.28) * 0.01;
+vec3 COLOR_DARK_YELLOW = vec3(0.25, 0.25, 0.0625) * 0.01;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / uResolution.xy;

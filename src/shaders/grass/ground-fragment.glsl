@@ -28,7 +28,7 @@ void main() {
         grid2
     );
     gridColor = mix(gridColor, vec3(0.00625), grid1);
-    vec3 color = gridColor;
+    vec3 color = gridColor * 0.005;
     color = pow(color, vec3(1.0 / 2.2));
     gl_FragColor = vec4(color, 1.0);
 }

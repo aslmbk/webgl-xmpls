@@ -48,6 +48,28 @@ vec3 phongSpecular(vec3 normal, vec3 lightDir, vec3 viewDir) {
     return specular;
 }
 
+vec3 pointLight(
+    vec3 lightColor,
+    float lightIntensity,
+    vec3 normal,
+    vec3 lightPosition,
+    vec3 modelPosition
+) {
+    vec3 lightDelta = modelPosition - lightPosition;
+    float lightDistance = length(lightDelta);
+    vec3 lightDirection = normalize(lightDelta);
+
+    float shading = -dot(normal, lightDirection);
+    shading = max(0.0, shading);
+
+    // exponential decay
+    float decay = exp(-lightDistance * 0.2);
+    decay = max(0.0, decay);
+
+    return lightColor * lightIntensity * shading * decay;
+
+}
+
 void main() {
     float grassX = vGrassData.x;
     float grassY = vGrassData.y;
@@ -76,15 +98,29 @@ void main() {
     vec3 lightColour = vec3(1.0);
     vec3 diffuseLighting = lambertLight(normal, viewDir, lightDir, lightColour);
 
+    vec3 pointLighting = pointLight(
+        vec3(1.0, 0.5, 0.1),
+        40.0,
+        normal,
+        vec3(0.0, 3.0, 0.0),
+        vWorldPosition
+    );
+
+    float twinkleNoise =
+        sin(uTime * 10.0) + sin(uTime * 20.0) * 0.5 + cos(uTime * 30.0) * 0.25;
+    twinkleNoise = remap(twinkleNoise, -1.0, 1.0, 0.5, 1.0);
+    pointLighting *= twinkleNoise;
+
     vec3 specular =
         phongSpecular(normal, lightDir, viewDir) * easeOut(grassY, 4.0);
 
     // Fake AO
     float ao = remap(pow(grassY, 2.0), 0.0, 1.0, 0.0625, 1.0);
 
-    vec3 lighting = ambientLighting + diffuseLighting;
+    vec3 lighting =
+        ambientLighting * 0.1 + diffuseLighting * 0.3 + pointLighting;
 
-    vec3 color = baseColor.xyz * lighting + specular * baseColor.xyz;
+    vec3 color = baseColor.xyz * lighting + specular;
     color *= ao;
     color = pow(color, vec3(1.0 / 2.2));
     gl_FragColor = vec4(color, 1.0);

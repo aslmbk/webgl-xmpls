@@ -15,7 +15,7 @@ import {
 import vertexShader from "../shaders/fire/vertex.glsl";
 import fragmentShader from "../shaders/fire/fragment.glsl";
 
-class ParticleProject {
+export class ParticleProject {
   #particleSystem_ = null;
   #smokeMaterial_ = null;
   #campfireLight_ = null;
@@ -28,24 +28,6 @@ class ParticleProject {
       scene.background = hdrTexture;
       scene.environment = hdrTexture;
     });
-
-    const whiteSquareTexture = textureLoader.load("./textures/whitesquare.png");
-    whiteSquareTexture.wrapS = THREE.RepeatWrapping;
-    whiteSquareTexture.wrapT = THREE.RepeatWrapping;
-    whiteSquareTexture.repeat.set(500, 500);
-    whiteSquareTexture.anisotropy = 16;
-
-    const groundGeo = new THREE.PlaneGeometry(500, 500);
-    const groundMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      map: whiteSquareTexture,
-      metalness: 0.5,
-      roughness: 0.6,
-    });
-    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
-    groundMesh.rotation.x = -Math.PI / 2;
-    groundMesh.receiveShadow = true;
-    scene.add(groundMesh);
 
     gltfLoader.load("./models/tree1.glb", (gltf) => {
       gltf.scene.traverse((c) => {
@@ -85,17 +67,18 @@ class ParticleProject {
         c.receiveShadow = true;
       });
 
-      scene.add(gltf.scene);
+      const model = gltf.scene;
+      model.children.splice(0, 1);
+      model.position.y = 0.2;
+
+      scene.add(model);
     });
 
-    this.#campfireLight_ = new THREE.PointLight(0xf8b867, 100);
+    this.#campfireLight_ = new THREE.PointLight(0xf8b867, 10000);
     this.#campfireLight_.position.set(0, 4, 0);
     this.#campfireLight_.castShadow = true;
     this.#campfireLight_.shadow.mapSize.set(1024, 1024);
     scene.add(this.#campfireLight_);
-
-    const helper = new THREE.PointLightHelper(this.#campfireLight_);
-    scene.add(helper);
 
     this.#createParticleSystem_();
   }

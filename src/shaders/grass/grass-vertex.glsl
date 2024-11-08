@@ -169,7 +169,7 @@ float noise(vec3 p) {
 }
 
 vec3 terrainHeight(vec3 worldPos) {
-    return vec3(worldPos.x, noise(worldPos * 0.1) * 4.0, worldPos.z);
+    return vec3(worldPos.x, noise(worldPos * 0.1) * 2.0, worldPos.z);
 }
 
 const vec3 BASE_COLOUR = vec3(0.1, 0.4, 0.04);
@@ -191,6 +191,7 @@ void main() {
     vec3 grassBladeWorldPosition = (modelMatrix * vec4(grassOffset, 1.0)).xyz;
     vec3 hashValue = hash(grassBladeWorldPosition);
     float grassType = saturate(hashValue.z) > 0.975 ? 1.0 : 0.0;
+    grassType = 0.0;
 
     float angle = remap(hashValue.x, -1.0, 1.0, -PI, PI);
 
@@ -219,12 +220,12 @@ void main() {
     float heightPercent = float(vertID - xTest) / (float(GRASS_SEGMENTS) * 2.0);
 
     float width = GRASS_WIDTH;
-    // width *= easeOut(1.0 - heightPercent, 2.0) * tileGrassHeight;
-    width *= mix(
-        easeOut(1.0 - heightPercent, 2.0) * tileGrassHeight,
-        1.0,
-        grassType
-    );
+    width *= easeOut(1.0 - heightPercent, 2.0) * tileGrassHeight;
+    // width *= mix(
+    //     easeOut(1.0 - heightPercent, 2.0) * tileGrassHeight,
+    //     1.0,
+    //     grassType
+    // );
     // width *= smoothstep(0.0, 0.25, 1.0 - heightPercent);
     float height = GRASS_HEIGHT * tileGrassHeight;
 
@@ -233,9 +234,8 @@ void main() {
     float y = heightPercent * height;
     float z = 0.0;
 
-    float windStrength = noise(
-        vec3(grassBladeWorldPosition.xz * 0.05, 0.0) + uTime
-    );
+    float windStrength =
+        noise(vec3(grassBladeWorldPosition.xz * 0.05, 0.0) + uTime) * 0.2;
     float windAngle = 0.0;
     vec3 windAxis = vec3(cos(windAngle), 0.0, sin(windAngle));
     float windLeanAngle = windStrength * 1.5 * heightPercent * stiffness;
@@ -243,8 +243,9 @@ void main() {
     float randomLeanAnimation =
         noise(vec3(grassBladeWorldPosition.xz, uTime * 4.0)) *
         (windStrength * 0.5 + 0.125);
-    float leanFactor = 1.0;
+    float leanFactor = 1.0 + randomLeanAnimation;
     leanFactor = remap(hashValue.y, -1.0, 1.0, -0.5, 0.5) + randomLeanAnimation;
+    leanFactor = 1.0;
 
     // Add the bezier curve for bend
     vec3 p1 = vec3(0.0);
